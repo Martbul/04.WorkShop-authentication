@@ -26,3 +26,19 @@ console.log({token});
 
     
 }
+
+
+//if user is not athenticated , he can not access URLs with that middleware
+//because non authenticated users can not see add cube button but they can time the route in the URL
+//with that that URL is blocked for them and it redirects them to login page
+
+
+//hidden buttons dosen't mean that anyone can't access the routes, you need to block the couse anyone can type them in URL
+exports.isAuth = (req, res, next) => {
+    if (!req.user) {
+        return res.redirect('/users/login')
+    }
+
+    next()
+
+}

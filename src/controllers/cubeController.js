@@ -2,9 +2,10 @@ const router = require("express").Router();
 const cubeService = require("../services/cubeService");
 const accessoryService = require("../services/accessoryService");
 const {difficultyLevelOptionsViewData} = require('../utils/viewData');
+const {isAuth} = require("../middlewares/authMiddleware")
 
 
-router.get("/create", (req, res) => {
+router.get("/create",isAuth, (req, res) => {
   res.render("cube/create");
 });
 
@@ -30,8 +31,11 @@ router.get("/:cubeId/details", async (req, res) => {
     return;
   }
 
+  console.log(req.user)
+  const isOwner = cube.owner?.toString() === req.user._id
+
   const hasAccessories = cube.accessories?.length > 0;
-  res.render("cube/details", { cube, hasAccessories });
+  res.render("cube/details", { cube, hasAccessories,isOwner });
 });
 
 // accessory attachement
@@ -57,7 +61,12 @@ router.post("/:cubeId/attach-accessory", async (req, res) => {
 
 router.get('/:cubeId/edit',async (req, res) => {
  const {cubeId} = req.params;
- const cube = await cubeService.getSingleCube(cubeId).lean();
+  const cube = await cubeService.getSingleCube(cubeId).lean();
+  
+  
+  if (cube.owner?.toString() === req.user._id) {
+    return res.redirect('/404')
+  }
  const options = difficultyLevelOptionsViewData(cube.difficultyLevel)
  
  //populating cube data on the template for editing
