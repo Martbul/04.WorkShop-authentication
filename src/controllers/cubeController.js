@@ -31,9 +31,15 @@ router.get("/:cubeId/details", async (req, res) => {
     return;
   }
 
-  console.log(req.user)
-  const isOwner = cube.owner?.toString() === req.user._id
 
+   let isOwner = false
+
+   if (req.user === undefined) {
+     isOwner = false
+  } else {
+      isOwner = cube.owner?.toString() === req.user._id;
+  }
+ 
   const hasAccessories = cube.accessories?.length > 0;
   res.render("cube/details", { cube, hasAccessories,isOwner });
 });
